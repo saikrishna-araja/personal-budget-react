@@ -1,10 +1,53 @@
-import React from 'react';
+import React,{useEffect, useState} from 'react';
+import axios from 'axios';
+import {Chart} from 'chart.js/auto';
+import {Pie} from 'react-chartjs-2';
+import DonutChart from '../Charts/DonutChart';
 
 function HomePage() {
-    return (
-        <main id="main"  class="center"> 
 
-        <div class="page-area">
+    const dataSource = {
+        datasets: [
+            {
+                data: [],
+                backgroundColor: [
+                    '#ffcd56',
+                    '#ff6384',
+                    '#36a2eb',
+                    '#fd6b19',
+                    'green',
+                    'yellow',
+                    'peach'
+                ]
+            }
+        ],
+        labels: []
+    };
+
+    const [chartData,setState]= useState([]);
+   
+    axios.get('http://localhost:3000/budget')
+        .then(function (res) {
+            for (var i = 0; i < res.data.myBudget.length; i++) {
+                dataSource.datasets[0].data[i] = res.data.myBudget[i].budget;
+                dataSource.labels[i] = res.data.myBudget[i].title;
+
+                var budgetItem = {
+                    value: res.data.myBudget[i].budget,
+                    name: res.data.myBudget[i].title
+                };
+                chartData.push(budgetItem)
+                // Add the created object to the array
+               setState(chartData);
+            }
+        });
+
+  
+
+    return (
+        <main id="main"  className="center"> 
+
+        <div className="page-area">
             
             <article> 
                 <section> 
@@ -46,15 +89,12 @@ function HomePage() {
                     </p>
                 </section>
             </article>
-            <h1 >Charts</h1>
-            <div id="charts" class="chart">    
-                <figure> 
-                    <canvas id="myChart"   role="img" aria-label="Budget Chart"></canvas> 
-                </figure>                                     
+            <h1 >Charts</h1> 
+            <div id="charts" className="chart">    
+                <Pie data={dataSource}></Pie>
+                <DonutChart data={chartData}></DonutChart>                          
             </div>
-            <div id="chart1"> </div>
-            </div>
-        
+        </div>       
     </main>
     );
   }
